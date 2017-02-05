@@ -1,4 +1,8 @@
 var C = {
+    ID: {
+        BOARD : 0,
+        TILE : 1,
+    },
     TILE: {
         STATE: {
             NORMAL: 0,
@@ -30,17 +34,17 @@ var C = {
             Y: 1
         }
     }, 
-    NOTI: {
-        TILE: {
-            CREATE: 0, 
-            MERGED: 1, 
-            REMOVE: 2
+    V : {
+        STATE : {
+            ACTIVE : 0,
+            INACTIVE : 1
         }
     }
 }
 
 
 function gChooseRand(arr) {
+    if (arr === undefined || arr == null || arr.length == 0) return null;
     return arr[Math.floor(Math.random() * arr.length)];
 }
 function gHashSet() {
@@ -49,7 +53,7 @@ function gHashSet() {
         this.d[v] = true;
     }
     this.get = function (v) {
-        return this.d[v];
+        return this.d[v] !== undefined;
     }
 }
 
