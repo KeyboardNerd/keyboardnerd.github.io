@@ -1,6 +1,6 @@
 function GameModel(init_number){
   this.boardSize = 4;
-  this.board = new gBoard(this.boardSize);
+  this.board = new Core(this.boardSize);
 }
 
 GameModel.prototype.attachViewer = function(viewer){
