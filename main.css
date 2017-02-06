@@ -38,3 +38,12 @@ p{
   font-family: "Arial", sans-serif;
   text-align: center;
 }
+
+ul{
+  font-family: "Arial", sans-serif;
+  list-style-type: square;
+}
+
+.quote{
+  color: gray;
+}
