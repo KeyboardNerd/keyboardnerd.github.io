@@ -163,23 +163,3 @@ function gDim(x, y) {
         }
     }
 }
-
-function gNotifier(){
-    this.l = []
-    this.add = function(listener){
-        this.l.push(listener)
-    }
-    this.notify = function(content){
-        this.content = content;
-        this.l.forEach(function(listener) {
-            listener.recv(this.content);
-        }, this);
-    }
-}
-
-function gListener(exec){
-    this.exec = exec;
-    this.recv = function(content){
-        this.exec(content);
-    }
-}

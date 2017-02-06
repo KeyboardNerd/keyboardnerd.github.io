@@ -6,14 +6,14 @@ function vManager(ctx, parent) {
     this.watch = function (obj, objID, parentID) {
         var w = new gvWatcher(obj);
         var parent;
-        if (!parentID == null) {
+        if (parentID != null) {
             parent = this.v[parentID];
         } else {
             parent = this.parent;
         }
-        var node = this.makeV(objID, parent);
-        w.add(node);
-        this.v[parentID] = node;
+        var watcher = this.makeV(objID, parent);
+        w.add(watcher);
+        this.v[objID] = watcher.node;
         return w;
     }
     this.makeV = function (id, parent) {
@@ -26,9 +26,10 @@ function vManager(ctx, parent) {
     }
 }
 
-function gSetting(boardSize, initTileNumber) {
+function gSetting(boardSize, initTileNumber, incrTileNumber) {
     this.boardSize = boardSize;
     this.initTileNumber = initTileNumber;
+    this.incrTileNumber = incrTileNumber;
 }
 function gManager(vMan, gSetting) {
     this.vMan = vMan;
@@ -38,23 +39,35 @@ function gManager(vMan, gSetting) {
     }
     this.UP = function () {
         this.gBoard.moveAll(C.BOARD.DIR.N);
-        this.gBoard.addTileRand();
+        for (var i = 0; i < gSetting.incrTileNumber; i++){
+            this.gBoard.addTileRand();
+        }
+
     }
     this.DOWN = function () {
         this.gBoard.moveAll(C.BOARD.DIR.S);
-        this.gBoard.addTileRand();
+        for (var i = 0; i < gSetting.incrTileNumber; i++){
+            this.gBoard.addTileRand();
+        }
     }
     this.LEFT = function () {
         this.gBoard.moveAll(C.BOARD.DIR.W);
-        this.gBoard.addTileRand();
+        for (var i = 0; i < gSetting.incrTileNumber; i++){
+            this.gBoard.addTileRand();
+        }
     }
     this.RIGHT = function () {
         this.gBoard.moveAll(C.BOARD.DIR.E);
-        this.gBoard.addTileRand();
+        for (var i = 0; i < gSetting.incrTileNumber; i++){
+            this.gBoard.addTileRand();
+        }
     }
 }
 function cManager(gMan) {
     this.model = gMan;
+    this.activeParent;
+    this.ctx;
+    var outer = this;
     this.listener = function (event) {
         switch (event.which) {
             case 38:
@@ -73,7 +86,9 @@ function cManager(gMan) {
                 return;
         }
     };
-    this.listen = function (parent) {
-        parent.addEventListener("keydown", this.listener);
+    this.listen = function (ctx, activeNode) {
+        this.activeNode = activeNode;
+        this.ctx = ctx;
+        ctx.addEventListener("keydown", this.listener);
     }
 }

@@ -1,0 +1,18 @@
+.xtile{
+    position : absolute;
+    background-color: white;
+    width : 39px;
+    height : 39px;
+    line-height: 39px;
+    text-align: center;
+    font-family: "Arial", sans-serif;
+    color : lightslategrey;
+    border: thin solid lightgrey;
+}
+
+.xboard{
+    position: absolute;
+    width : 220px;
+    height : 220px;
+    border: thin solid lightgrey;
+}

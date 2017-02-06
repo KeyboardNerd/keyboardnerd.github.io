@@ -6,20 +6,27 @@ function vBoard(ctx, parent){
 }
 
 vBoard.initNode = function(ctx){
-    var node = ctx.createElement("xBoard");
-    node.style.height = "200px";
-    node.style.width = "200px";
-    node.style.position = "relative";
+    var node = ctx.createElement("div");
+    node.className = "xboard";
+    node.style.z_index = -1;
     return node;
 }
+
 vBoard.prototype.activate = function(){
     if (this.state == C.V.STATE.ACTIVE) return;
     this.parent.appendChild(this.node);
     this.state = C.V.STATE.ACTIVE;
 }
+
 vBoard.prototype.deactivate = function(){
     if (this.state == C.V.STATE.INACTIVE) return;
-    this.node.remove();
+    if (this.deactivateAnimation){
+        this.node.addEventListener("transitioned", function(e){
+            e.target.remove();
+        });
+    }else{
+        this.node.remove();
+    }
     this.state = CV.STATE.INACTIVE;
 }
 vBoard.prototype.invalidate = function(){
@@ -28,9 +35,12 @@ vBoard.prototype.invalidate = function(){
 }
 vBoard.prototype.update = function(board){
     this.activate();
+    board.dim.x*40 + "px";
+    var width = board.dim.y*40 + "px";
     this.node.style.height = board.dim.x*40 + "px";
     this.node.style.width = board.dim.y*40 + "px";
 }
+
 function vTile(ctx, parent){
     this.parent = parent;
     this.ctx = ctx;
@@ -39,39 +49,46 @@ function vTile(ctx, parent){
 }
 
 vTile.initNode = function(ctx){
-    var cell = ctx.createElement("xtile");
-    cell.style.top = "40px";
-    cell.style.left = "40px";
-    cell.style.width = "40px";
-    cell.style.height = "40px";
-    cell.style.position = "absolute";
-    cell.style.border = "thin solid #000000"; 
-    return cell;
+    var node = ctx.createElement("div");
+    node.className = "xtile";
+    node.style.transition = "all 0.5s, opacity 0.5s";
+    node.style.z_index = "2";
+    return node;
 }
+
 vTile.prototype.activate = function(){
+    if (this.state == C.V.STATE.ACTIVE) return;
     this.parent.appendChild(this.node);
     this.state = C.V.STATE.ACTIVE;
 }
 vTile.prototype.deactivate = function(){
-    this.node.remove();
+    if (this.state == C.V.STATE.INACTIVE) return;
+    this.node.style.zIndex = "0";
+    this.node.style.opacity = "0.0";
+    this.node.addEventListener("transitionend", function(e){ e.target.remove(); });
     this.state = C.V.STATE.INACTIVE;
 }
-vTile.prototype.invalidate = function(){
-    this.deactivate();        
-    this.activate();
-}
+
 vTile.prototype.update = function(tile){
+    var top = tile.loc.x*40+"px";
+    var left = tile.loc.y*40+"px";
+    if (this.node.style.top !== top){this.node.style.top = top;}
+    if (this.node.style.left !== left){this.node.style.left = left;}
+    if (this.node.innerHTML !== tile.v){this.node.innerHTML = tile.v;}
     this.activate();
-    if (tile.state == C.TILE.STATE.INVALID){
-        this.deactivate();
-        return;
+    if (tile.state == C.TILE.STATE.NORMAL){
+        this.node.style.zIndex = "1";
     }
-    
-    this.node.style.top = tile.loc.x*40+"px";
-    this.node.style.left = tile.loc.y*40+"px";
-    this.node.innerHTML = tile.v;
-    console.log(this.node);
+    if (tile.state == C.TILE.STATE.MERGED){
+        this.node.style.zIndex = "2";
+    }
+    if (tile.state == C.TILE.STATE.INVALID){
+        this.node.style.zIndex = "0";
+        this.deactivate();
+    }
+    //console.log(this.node);
 }
+
 function gvWatcher(obj){
     this.watchers = []
     this.obj = obj;

@@ -11,10 +11,10 @@ function gBoard(size, vMan) {
     this.w.update()
 }
 
-function gTile(value, vMan) {
+function gTile(value, vMan, x=0, y=0) {
     this.v = value;
     this.state = C.TILE.STATE.NORMAL;
-    this.loc = new gLoc(0,0);
+    this.loc = new gLoc(x,y);
     this.vMan = vMan;
     this.w = this.vMan.watch(this, C.ID.TILE, C.ID.BOARD); // only one context
     this.w.update();
@@ -31,8 +31,7 @@ gBoard.prototype.tAddTile = function (tile, x, y) {
 gBoard.prototype.addTileRand = function () {
     var cell = gChooseRand(this.getEmptyCell());
     if (cell){
-        var tile = gTile.rand(this.RANDNUM, this.vMan);
-        tile.move(cell.x, cell.y);
+        var tile = gTile.rand(this.RANDNUM, this.vMan, cell.x, cell.y);
         this.tAddTile(tile, cell.x, cell.y);
     }
 
@@ -108,7 +107,6 @@ gBoard.prototype.moveTile = function(x,y, nx, ny){
         this.b.move(x, y, nx, ny);
         return true;
     }else if (n.tmerge(o)){
-        o.move(nx, ny);
         this.b.del(x,y);
         return true;
     }else{
@@ -138,9 +136,9 @@ gBoard.prototype.getMergeable = function (arr, loc, dir) {
     return i;
 }
 
-gTile.rand = function (nums, vMan) {
+gTile.rand = function (nums, vMan, x=0, y=0) {
     var item = gChooseRand(nums);
-    return new gTile(item, vMan);
+    return new gTile(item, vMan, x, y);
 }
 
 gTile.prototype.toString = function(){
@@ -154,7 +152,6 @@ gTile.prototype.invalidate = function () {
 
 gTile.prototype.unmarkMerge = function(){
     this.state = C.TILE.STATE.NORMAL;
-    this.w.update();
 }
 gTile.prototype.markMerge = function(){
     this.state = C.TILE.STATE.MERGED;
@@ -165,6 +162,7 @@ gTile.prototype.tmerge = function (tile) {
     if (!this.fmerge(tile)) return false;
     this.v = this.v + tile.v;
     this.markMerge();
+    tile.move(this.loc.x, this.loc.y);
     tile.invalidate();
     return true;
 }
