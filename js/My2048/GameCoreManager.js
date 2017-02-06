@@ -37,30 +37,25 @@ function gManager(vMan, gSetting) {
     for (var i = 0; i < gSetting.initTileNumber; i++) {
         this.gBoard.addTileRand()
     }
-    this.UP = function () {
-        this.gBoard.moveAll(C.BOARD.DIR.N);
-        for (var i = 0; i < gSetting.incrTileNumber; i++){
-            this.gBoard.addTileRand();
+    this.boardMove = function(dir){
+        var success = this.gBoard.moveAll(dir);
+        if (success){
+            for (var i = 0; i < gSetting.incrTileNumber; i++){
+                this.gBoard.addTileRand();
+            }
         }
-
+    }
+    this.UP = function () {
+        this.boardMove(C.BOARD.DIR.N);
     }
     this.DOWN = function () {
-        this.gBoard.moveAll(C.BOARD.DIR.S);
-        for (var i = 0; i < gSetting.incrTileNumber; i++){
-            this.gBoard.addTileRand();
-        }
+        this.boardMove(C.BOARD.DIR.S);
     }
     this.LEFT = function () {
-        this.gBoard.moveAll(C.BOARD.DIR.W);
-        for (var i = 0; i < gSetting.incrTileNumber; i++){
-            this.gBoard.addTileRand();
-        }
+        this.boardMove(C.BOARD.DIR.W);
     }
     this.RIGHT = function () {
-        this.gBoard.moveAll(C.BOARD.DIR.E);
-        for (var i = 0; i < gSetting.incrTileNumber; i++){
-            this.gBoard.addTileRand();
-        }
+        this.boardMove(C.BOARD.DIR.E);
     }
 }
 function cManager(gMan) {
@@ -93,9 +88,6 @@ function cManager(gMan) {
 function cManagerTouch(gMan){
     this.model = gMan;
     this.startPosition 
-    this.compare = function(endPosition){
-
-    }
     this.handleStart = function(evt){
         evt.preventDefault();
         var touches = evt.changedTouches;
