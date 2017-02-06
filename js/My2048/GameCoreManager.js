@@ -65,7 +65,6 @@ function gManager(vMan, gSetting) {
 }
 function cManager(gMan) {
     this.model = gMan;
-    this.activeParent;
     this.ctx;
     var outer = this;
     this.listener = function (event) {
@@ -86,9 +85,58 @@ function cManager(gMan) {
                 return;
         }
     };
-    this.listen = function (ctx, activeNode) {
-        this.activeNode = activeNode;
+    this.listen = function (ctx) {
         this.ctx = ctx;
         ctx.addEventListener("keydown", this.listener);
     }
 }
+function cManagerTouch(gMan){
+    this.model = gMan;
+    this.startPosition 
+    this.compare = function(endPosition){
+
+    }
+    this.handleStart = function(evt){
+        evt.preventDefault();
+        var touches = evt.changedTouches;
+        this.startPosition = new gLoc(touches[0].pageX, touches[0].pageY);
+    }
+    this.handleEnd = function(evt){
+        var touches = evt.changedTouches;
+        var currentPosition = new gLoc(touches[0].pageX, touches[0].pageY);
+        switch(cManagerTouch.compare(this.startPosition, currentPosition)){
+            case 0:
+            gMan.DOWN();break;
+            case 1:
+            gMan.UP(); break;
+            case 2:
+            gMan.RIGHT(); break;
+            case 3:
+            gMan.LEFT(); break;
+        }
+    }
+    this.listen = function(ctx){
+        ctx.addEventListener("touchstart", this.handleStart, false);
+        ctx.addEventListener("touchend", this.handleEnd, false);
+    }
+}
+
+cManagerTouch.compare = function(startPosition, endPosition){
+        var dx = endPosition.x - startPosition.x;
+        var dy = endPosition.y - startPosition.y;
+        if (dx == dy < 10) { return -1; }// not valid}
+        if (Math.abs(dy) > Math.abs(dx)){
+            if (dy > 0){
+                return 0; // south 
+            }else{
+                return 1; // north
+            }
+        }else{
+            if (dx > 0){
+                return 2; // east
+            }else{
+                return 3; // west
+            }
+        }
+}
+
