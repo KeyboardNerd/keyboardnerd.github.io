@@ -1,48 +1,48 @@
 <html>
-    <head>
-        <meta charset='utf-8'/>
-        <title>Sida Chen's Personal Site</title>
-        <link rel="stylesheet" type="text/css" href="main.css">
-        <link rel="stylesheet" type="text/css" href="./js/My2048/main2048.css">
-    </head>
-    <body>
-        <h1 class="h1-center">
-            Sida Chen's Personal Site
-        </h1>
-	<h3>
-    Undergraduate at RPI CS Department<br>
-	  A member of <a href="http://wcl.cs.rpi.edu/">Worldwide Computing Laboratory</a><br>
-            <a href="https://github.com/KeyboardNerd">GitHub</a>
-	</h3>
+  <head>
+    <meta charset='utf-8'/>
+    <title>Sida Chen's Personal Site</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="./js/My2048/main2048.css">
+  </head>
+  <body>
+    <h1 class="h1-center">
+      Sida Chen's Personal Site
+    </h1>
+		<h3>
+			Undergraduate at RPI CS Department<br>
+			A member of <a href="http://wcl.cs.rpi.edu/">Worldwide Computing Laboratory</a><br>
+      <a href="https://github.com/KeyboardNerd">GitHub</a>
+		</h3>
     <div class="game-container">
-        <div id="board"></div>
+      <div id="board"></div>
     </div>
     <div style="overflow:hidden; margin-top: 10px; height: 100px; width: 400px; margin-left: auto; margin-right: auto">
-    <div style="width: 100%; height: 100%; overflow-y: scroll; padding-right: 20px">
-    <ul>
-    
-    </ul>
-    </div>
+			<div style="width: 100%; height: 100%; overflow-y: scroll; padding-right: 20px">
+				<ul>
+					
+				</ul>
+			</div>
     </div>
     <div style="position: fixed; bottom: 0; width: 100%; height: auto">
-    <p  class="quote" id="quote"></p>
-    </body>
-    <script type="text/javascript" src="./js/My2048/Util.js"></script>    
-    <script type="text/javascript" src="./js/My2048/GameCoreModel.js"></script>
-    <script type="text/javascript" src="./js/My2048/GameCoreWatcher.js"></script>
-    <script type="text/javascript" src="./js/My2048/GameCoreManager.js"></script>
-    <script type="text/javascript" src="./js/My2048/GameCoreMain.js"></script>
-    <script type="text/javascript" src="./js/Quotes/quotes.js"></script>
-    <script>
-        var ctl = new GameCoreMain(document.getElementById("board"));
-    </script>
-    <script>
-        function QuoteBook(node){
-            this.quotes = Q.QUOTES
-            this.gen = function(){node.innerHTML =gChooseRand(this.quotes); }
-            this.gen();
-        }
-        var quotebook = new QuoteBook(document.getElementById("quote"));
-    </script>
-    </div>
+			<p  class="quote" id="quote"></p>
+  </body>
+  <script type="text/javascript" src="./js/My2048/Util.js"></script>    
+  <script type="text/javascript" src="./js/My2048/GameCoreModel.js"></script>
+  <script type="text/javascript" src="./js/My2048/GameCoreWatcher.js"></script>
+  <script type="text/javascript" src="./js/My2048/GameCoreManager.js"></script>
+  <script type="text/javascript" src="./js/My2048/GameCoreMain.js"></script>
+  <script type="text/javascript" src="./js/Quotes/quotes.js"></script>
+  <script>
+    var ctl = new GameCoreMain(document.getElementById("board"));
+  </script>
+  <script>
+    function QuoteBook(node){
+    this.quotes = Q.QUOTES
+    this.gen = function(){node.innerHTML =gChooseRand(this.quotes); }
+    this.gen();
+    }
+    var quotebook = new QuoteBook(document.getElementById("quote"));
+  </script>
+  </div>
 </html>
