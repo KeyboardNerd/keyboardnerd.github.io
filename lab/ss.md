@@ -1,4 +1,3 @@
-# The problem is that 
 # configure SSServer
 
 1. Setup server in Japan, using CentOS:7.X
