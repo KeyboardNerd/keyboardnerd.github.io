@@ -2,7 +2,7 @@ from dateutil import tz
 
 with open('mysql-slowquery.log') as f:
 	with open('that_log_1.csv', 'w+') as log:
-		log.write(','.join(['query_time', 'lock_time', 'timestamp (GMT-4 (EDT))', 'query']))
+		log.write(','.join(['query_time', 'lock_time', 'timestamp (GMT-4 (EDT))', 'query']) + '\n')
 		lines = f.readlines()
 		unique = set()
 		i = 0
