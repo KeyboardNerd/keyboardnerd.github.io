@@ -15,6 +15,9 @@ with open('mysql-slowquery.log') as f:
 				i += 1
 				continue
 
+			if '/rdsdbbin/mysql/bin/mysqld, Version: 5.6.40-log (Source distribution). started with:' in lines[i]:
+				i += 1
+				continue
 			if '# User@Host: quayio[quayio]' in lines[i]:
 				i += 1
 				count = 0
@@ -27,8 +30,9 @@ with open('mysql-slowquery.log') as f:
 						count = 2
 						ts = datetime.datetime.utcfromtimestamp(int(lines[i].split('=')[1].split(';')[0])).replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal()).strftime('%m/%d/%Y %H:%M:%S %Z')
 
-					elif count == 2:
+					elif count == 2 and '/rdsdbbin/mysql/bin/mysqld, Version: 5.6.40-log (Source distribution). started with:' not in lines[i] and 'Tcp port: 3306  Unix socket: /tmp/mysql.sock' not in lines[i] and 'Time                 Id Command    Argument' not in lines[i]:
 						query = lines[i]
+
 					i += 1
 				block_count += 1
 				block = ','.join([str(query_time), str(lock_time), ts, "\""+query+"\""]) + '\n'
