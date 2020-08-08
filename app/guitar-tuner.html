@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<meta charset='utf-8'/>
+		<title>Guitar Tuner</title>
+	</head>
+
+	<body>
+        Guitar Tuner<br/>
+Road Map<br/>
+1. Get microphone access<br/>
+<div id="microphone_allowed"></div><br/>
+2. Show if microphone has input or not<br/>
+3. Check the frequency of the input<br/>
+4. See if the frequency is higher or lower than certain number<br/>
+5. Remove back ground noise<br/>
+6. Support one sweep<br/>
+	</body>
+    <script>
+        microphone_allowed = document.getElementById("microphone_allowed")
+        navigator.getUserMedia({audio:true}, (stream)=>{
+            console.log(stream);
+            microphone_allowed.innerHTML="Yes, user gave the permission"
+        }, (err)=>{
+            console.log(err);
+            microphone_allowed.innerHTML="No, user didn't give the permission"
+        })
+
+    </script>
+</html>
