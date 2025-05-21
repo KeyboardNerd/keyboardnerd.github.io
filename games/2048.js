@@ -281,6 +281,39 @@ function gBoard(size, vMan) {
     this.w.update()
 }
 
+gBoard.prototype.toJSON = function() {
+    const serializedB = this.b.m.map(row => {
+        return row.map(tile => {
+            return tile ? tile.toJSON() : null;
+        });
+    });
+
+    return {
+        dim: { x: this.dim.x, y: this.dim.y }, // gDim is simple, direct serialization is fine
+        RANDNUM: this.RANDNUM,
+        b: serializedB
+    };
+};
+
+gBoard.fromJSON = function(json, vMan) {
+    let board = new gBoard(json.dim.x, vMan);
+    board.RANDNUM = json.RANDNUM;
+
+    for (let i = 0; i < json.b.length; i++) {
+        for (let j = 0; j < json.b[i].length; j++) {
+            if (json.b[i][j]) {
+                const tile = gTile.fromJSON(json.b[i][j], vMan);
+                board.b.put(tile, i, j);
+            } else {
+                board.b.put(null, i, j); // Ensure nulls are explicitly set if needed by g2DMatrix logic
+            }
+        }
+    }
+    // The gBoard constructor and gTile.fromJSON (via gTile constructor) handle their own this.w.update() calls.
+    // So, the overall board and tile visuals should be updated.
+    return board;
+};
+
 function gTile(value, vMan, x=0, y=0) {
     this.v = value;
     this.state = C.TILE.STATE.NORMAL;
@@ -289,6 +322,22 @@ function gTile(value, vMan, x=0, y=0) {
     this.w = this.vMan.watch(this, C.ID.TILE, C.ID.BOARD); // only one context
     this.w.update();
 }
+
+gTile.prototype.toJSON = function() {
+    return {
+        v: this.v,
+        state: this.state,
+        loc: { x: this.loc.x, y: this.loc.y }
+    };
+};
+
+gTile.fromJSON = function(json, vMan) {
+    let tile = new gTile(json.v, vMan, json.loc.x, json.loc.y);
+    tile.state = json.state;
+    // The gTile constructor already calls this.w.update(),
+    // so the visual representation should be updated automatically.
+    return tile;
+};
 
 gBoard.prototype.tAddTile = function (tile, x, y) {
     if (this.b.fempty(x, y)) {
@@ -478,33 +527,110 @@ function gSetting(boardSize, initTileNumber, incrTileNumber) {
     this.initTileNumber = initTileNumber;
     this.incrTileNumber = incrTileNumber;
 }
-function gManager(vMan, gSetting) {
+
+// Define localStorageKey at a scope accessible to gManager methods
+const localStorageKey = "2048GameState";
+
+// gManager constructor
+function gManager(vMan, gSettingInstance) { // Renamed gSetting to gSettingInstance for clarity
     this.vMan = vMan;
-    this.gBoard = new gBoard(gSetting.boardSize, vMan);
-    for (var i = 0; i < gSetting.initTileNumber; i++) {
-        this.gBoard.addTileRand()
-    }
-    this.boardMove = function(dir){
-        var success = this.gBoard.moveAll(dir);
-        if (success){
-            for (var i = 0; i < gSetting.incrTileNumber; i++){
-                this.gBoard.addTileRand();
-            }
+    this.gSetting = gSettingInstance; // Store gSetting
+
+    if (!this.loadGame()) { // Try to load game
+        // If loadGame returns false (no saved game or error during loading)
+        this.gBoard = new gBoard(this.gSetting.boardSize, this.vMan);
+        for (var i = 0; i < this.gSetting.initTileNumber; i++) {
+            this.gBoard.addTileRand();
         }
     }
-    this.UP = function () {
-        this.boardMove(C.BOARD.DIR.N);
-    }
-    this.DOWN = function () {
-        this.boardMove(C.BOARD.DIR.S);
-    }
-    this.LEFT = function () {
-        this.boardMove(C.BOARD.DIR.W);
-    }
-    this.RIGHT = function () {
-        this.boardMove(C.BOARD.DIR.E);
-    }
+    // The methods UP, DOWN, LEFT, RIGHT, boardMove, saveGame, loadGame are defined on gManager.prototype
 }
+
+gManager.prototype.saveGame = function() {
+    try {
+        if (this.gBoard) { // Ensure gBoard exists
+            const boardState = this.gBoard.toJSON();
+            localStorage.setItem(localStorageKey, JSON.stringify(boardState));
+            // console.log("Game saved to localStorage!"); // For debugging
+        }
+    } catch (e) {
+        console.error("Error saving game to localStorage:", e);
+        // Could alert the user or attempt other recovery mechanisms if critical
+    }
+};
+
+gManager.prototype.loadGame = function() {
+    try {
+        const savedStateString = localStorage.getItem(localStorageKey);
+        if (savedStateString) {
+            const parsedData = JSON.parse(savedStateString); // Potential error source
+            
+            // It's crucial that gBoard.fromJSON and gTile.fromJSON correctly
+            // set up their visual watchers (this.w.update()).
+            const loadedBoard = gBoard.fromJSON(parsedData, this.vMan); // Potential error source if data is incompatible
+            
+            if (!loadedBoard) {
+                console.error("Failed to load board from parsed JSON data (gBoard.fromJSON returned falsy).");
+                // localStorage.removeItem(localStorageKey); // Optionally remove corrupted data
+                return false;
+            }
+            this.gBoard = loadedBoard;
+
+            // As per latest instructions, relying on constructor-triggered visual updates.
+            // gBoard's constructor calls this.w.update().
+            // gTile's constructor (called by gBoard.fromJSON) calls this.w.update().
+            // If visual issues occurred, an explicit update loop for tiles would be added here:
+            // this.gBoard.w.update(); // For the board itself (already done in gBoard constructor)
+            // var notNullTiles = this.gBoard.b.notNullLocs();
+            // var self = this;
+            // notNullTiles.forEach(function(loc) {
+            //     var tile = self.gBoard.b.get(loc.x, loc.y);
+            //     if (tile && tile.w) { tile.w.update(); }
+            // });
+            // console.log("Game loaded from localStorage!"); // For debugging
+            return true;
+        }
+        return false; // No saved game found in localStorage
+    } catch (e) {
+        console.error("Error loading game from localStorage:", e);
+        // If any error occurs (parsing, fromJSON execution), treat as load failure.
+        // localStorage.removeItem(localStorageKey); // Optionally remove corrupted data
+        return false;
+    }
+};
+
+// Modified boardMove to call saveGame
+gManager.prototype.boardMove = function(dir) {
+    if (!this.gBoard) { // Safety check, should always exist after constructor
+        console.error("gBoard not initialized in boardMove.");
+        return;
+    }
+    var success = this.gBoard.moveAll(dir);
+    if (success) {
+        for (var i = 0; i < this.gSetting.incrTileNumber; i++) {
+            this.gBoard.addTileRand();
+        }
+        this.saveGame(); // Save game state after a successful move
+    }
+};
+
+// UP, DOWN, LEFT, RIGHT methods remain structurally the same, calling boardMove
+gManager.prototype.UP = function() {
+    this.boardMove(C.BOARD.DIR.N);
+};
+
+gManager.prototype.DOWN = function() {
+    this.boardMove(C.BOARD.DIR.S);
+};
+
+gManager.prototype.LEFT = function() {
+    this.boardMove(C.BOARD.DIR.W);
+};
+
+gManager.prototype.RIGHT = function() {
+    this.boardMove(C.BOARD.DIR.E);
+};
+
 function cManager(gMan) {
     this.model = gMan;
     this.ctx;
